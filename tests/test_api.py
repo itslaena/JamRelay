@@ -239,7 +239,7 @@ class StaticFiles(ApiTestCase):
 
     def test_server_code_and_database_are_not_served(self):
         self.assertEqual(self.call("GET", "/server.py")[0], 404)
-        self.assertEqual(self.call("GET", "/data/jamdesk.db")[0], 404)
+        self.assertEqual(self.call("GET", "/data/jamrelay.db")[0], 404)
         self.assertEqual(self.call("GET", "/js/../server.py")[0], 404)
         self.assertEqual(self.call("GET", "/js/%2e%2e/server.py")[0], 404)
 

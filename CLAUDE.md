@@ -1,4 +1,4 @@
-# JamDesk — project notes for Claude
+# JamRelay — project notes for Claude
 
 Portfolio project for a **PM internship application**. A small creator-submission and review tool for a **fictional** game jam ("Driftwood Jam 2026"). All content must stay fictional, with no real company branding. The code was written from scratch.
 
@@ -8,7 +8,7 @@ Portfolio project for a **PM internship application**. A small creator-submissio
 - **Statuses:** submitted (shown as "New"), in_review, changes_requested, resubmitted, approved, declined. Allowed moves are in `ORGANIZER_NEXT`.
 
 ## Architecture (no installs; Python 3 standard library plus vanilla JS)
-- `server.py`: serves the app and a JSON API, stores data in SQLite at `data/jamdesk.db` (gitignored) and seeds demo data. It re-validates everything, and only `index.html`, `css/`, `js/` and `tests/` are served (paths are normalized to block `../`).
+- `server.py`: serves the app and a JSON API, stores data in SQLite at `data/jamrelay.db` (gitignored) and seeds demo data. It re-validates everything, and only `index.html`, `css/`, `js/` and `tests/` are served (paths are normalized to block `../`).
 - `js/rules.js`: the pure rules (validation, transitions, needs-attention). **These are mirrored in Python in `server.py`, so keep the two in sync.**
 - `js/store.js`: the API client with an in-memory cache. `js/app.js`: the screens plus a hash router.
 - API: `GET /api/entries`, `GET /api/entries/:id`, `POST /api/entries`, `PUT /api/entries/:id` (resubmit; 409 unless changes_requested), `POST /api/entries/:id/review`, `POST /api/reset`.

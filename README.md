@@ -1,4 +1,4 @@
-# JamDesk
+# JamRelay
 
 A small submission and review tool for a game jam. Creators submit their game. The organizer reviews entries, changes their status and leaves feedback. A dashboard shows which entries need attention.
 
@@ -14,7 +14,7 @@ You need Python 3.8 or newer. There is nothing to install.
 python3 server.py
 ```
 
-Then open <http://localhost:8000>. The app creates a SQLite database at `data/jamdesk.db` and fills it with demo entries. To start over, use **Reset demo data** at the bottom of any page.
+Then open <http://localhost:8000>. The app creates a SQLite database at `data/jamrelay.db` and fills it with demo entries. To start over, use **Reset demo data** at the bottom of any page.
 
 ## What you can do
 
@@ -28,7 +28,7 @@ Then open <http://localhost:8000>. The app creates a SQLite database at `data/ja
 ## How it fits together
 
 ```
-Browser (index.html, js/)  ── JSON over HTTP ──>  API (server.py)  ── SQL ──>  SQLite (data/jamdesk.db)
+Browser (index.html, js/)  ── JSON over HTTP ──>  API (server.py)  ── SQL ──>  SQLite (data/jamrelay.db)
 ```
 
 | File | Role |

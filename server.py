@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""JamDesk server: serves the web app and a small JSON API backed by SQLite.
+"""JamRelay server: serves the web app and a small JSON API backed by SQLite.
 
 Standard library only. Run:  python3 server.py   then open http://localhost:8000
 
-    Interface (browser)  --fetch JSON-->  API (this file)  --SQL-->  Database (data/jamdesk.db)
+    Interface (browser)  --fetch JSON-->  API (this file)  --SQL-->  Database (data/jamrelay.db)
 
 The API re-checks every rule the browser checks (js/rules.js), because the
 browser can be bypassed: anyone can send a request straight to the API.
@@ -454,7 +454,7 @@ class Handler(SimpleHTTPRequestHandler):
         self.respond(self.db.resubmit(m.group(1), data))
 
 
-def make_server(port=8000, db_path=ROOT / "data" / "jamdesk.db", quiet=False):
+def make_server(port=8000, db_path=ROOT / "data" / "jamrelay.db", quiet=False):
     handler = type("BoundHandler", (Handler,), {"db": DB(db_path)})
     server = ThreadingHTTPServer(("127.0.0.1", port), handler)
     server.quiet = quiet
@@ -462,12 +462,12 @@ def make_server(port=8000, db_path=ROOT / "data" / "jamdesk.db", quiet=False):
 
 
 def main(argv=None):
-    parser = argparse.ArgumentParser(description="Run the JamDesk app and API.")
+    parser = argparse.ArgumentParser(description="Run the JamRelay app and API.")
     parser.add_argument("--port", type=int, default=8000)
-    parser.add_argument("--db", default=str(ROOT / "data" / "jamdesk.db"), help="SQLite file path")
+    parser.add_argument("--db", default=str(ROOT / "data" / "jamrelay.db"), help="SQLite file path")
     args = parser.parse_args(argv)
     server = make_server(args.port, args.db)
-    print(f"JamDesk running at http://localhost:{args.port}  (database: {args.db})")
+    print(f"JamRelay running at http://localhost:{args.port}  (database: {args.db})")
     try:
         server.serve_forever()
     except KeyboardInterrupt:

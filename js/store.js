@@ -1,4 +1,4 @@
-// JamDesk data layer: talks to the JSON API in server.py.
+// JamRelay data layer: talks to the JSON API in server.py.
 //
 // Keeps an in-memory copy of the entries so the UI can read synchronously
 // (e.g. the duplicate-title check on every keystroke). The router calls
@@ -9,8 +9,8 @@
 (function (root) {
   'use strict';
 
-  const MINE_KEY = 'jamdesk.mine.v1';
-  const DRAFT_KEY = 'jamdesk.draft.v1';
+  const MINE_KEY = 'jamrelay.mine.v1';
+  const DRAFT_KEY = 'jamrelay.draft.v1';
 
   let entries = [];
 
@@ -35,7 +35,7 @@
         body: body ? JSON.stringify(body) : undefined,
       });
     } catch (e) {
-      throw new ApiError(0, { error: 'Can’t reach the JamDesk server. Is it running? (python3 server.py)' });
+      throw new ApiError(0, { error: 'Can’t reach the JamRelay server. Is it running? (python3 server.py)' });
     }
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new ApiError(res.status, data);

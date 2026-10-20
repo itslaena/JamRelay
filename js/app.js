@@ -1,4 +1,4 @@
-// JamDesk UI: hash-routed views for creators and the organizer.
+// JamRelay UI: hash-routed views for creators and the organizer.
 (function () {
   'use strict';
 

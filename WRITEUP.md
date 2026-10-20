@@ -1,4 +1,4 @@
-# JamDesk: write-up
+# JamRelay: write-up
 
 A small tool for running game jam submissions. Creators submit an entry, the organizer reviews it, and a dashboard shows what needs attention. The jam and every entry in it are fictional. Setup and code are in the [README](README.md).
 

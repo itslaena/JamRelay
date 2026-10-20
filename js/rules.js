@@ -1,4 +1,4 @@
-// Pure rules for JamDesk: validation, status transitions and "needs attention".
+// Pure rules for JamRelay: validation, status transitions and "needs attention".
 // No DOM or storage access here, so everything in this file is unit-testable.
 (function (root) {
   'use strict';

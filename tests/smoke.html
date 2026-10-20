@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>JamDesk Smoke Test</title>
+  <title>JamRelay Smoke Test</title>
   <style>
     body { font: 17px/1.5 system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 16px; }
     .pass { color: #1a7f37; } .fail { color: #b42318; font-weight: 600; }
@@ -11,7 +11,7 @@
   </style>
 </head>
 <body>
-  <h1>JamDesk end-to-end smoke test</h1>
+  <h1>JamRelay end-to-end smoke test</h1>
   <p>Drives the real app through the full creator → organizer loop. Run it through the app server:
      <code>python3 server.py</code>, then open <code>http://localhost:8000/tests/smoke.html</code>.
      <strong>It resets the demo data.</strong></p>
@@ -45,8 +45,8 @@
 
       // fresh state
       await fetch('/api/reset', { method: 'POST' });
-      localStorage.removeItem('jamdesk.mine.v1');
-      Object.keys(localStorage).filter((k) => k.startsWith('jamdesk.draft.v1')).forEach((k) => localStorage.removeItem(k));
+      localStorage.removeItem('jamrelay.mine.v1');
+      Object.keys(localStorage).filter((k) => k.startsWith('jamrelay.draft.v1')).forEach((k) => localStorage.removeItem(k));
       frame.src = '../index.html#/submit';
       await new Promise((r) => (frame.onload = r));
       await tick(60);
@@ -113,7 +113,7 @@
       check('resubmission edits survive leaving the page', /controls screen/.test($('#f-description').value) && $('#f-note').value === 'Added a controls screen.');
       $('#entry-form button[type=submit]').click();
       await tick(80);
-      check('resubmission draft is cleared after resubmitting', localStorage.getItem('jamdesk.draft.v1.' + entry.id) === null);
+      check('resubmission draft is cleared after resubmitting', localStorage.getItem('jamrelay.draft.v1.' + entry.id) === null);
       check('resubmission moves entry to Resubmitted', store().get(entry.id).status === 'resubmitted');
       check('resubmission keeps the updated description', /controls screen/.test(store().get(entry.id).description));
 
@@ -155,8 +155,8 @@
 
       // clean up so the demo starts fresh afterwards
       await fetch('/api/reset', { method: 'POST' });
-      localStorage.removeItem('jamdesk.mine.v1');
-      Object.keys(localStorage).filter((k) => k.startsWith('jamdesk.draft.v1')).forEach((k) => localStorage.removeItem(k));
+      localStorage.removeItem('jamrelay.mine.v1');
+      Object.keys(localStorage).filter((k) => k.startsWith('jamrelay.draft.v1')).forEach((k) => localStorage.removeItem(k));
 
       const failed = results.filter((r) => !r.ok).length;
       document.getElementById('summary').textContent = `${results.length - failed} passed, ${failed} failed`;

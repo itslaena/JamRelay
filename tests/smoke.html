@@ -132,7 +132,7 @@
 
       // 8. Single-option review: an unchecked lone radio must not count as chosen
       await nav('#/review/' + entry.id);
-      check('approved entry offers only "In review"', $$('input[name=status]').length === 1);
+      check('approved entry offers only "In Review"', $$('input[name=status]').length === 1);
       $('#review-form button[type=submit]').click();
       await tick();
       check('saving with nothing selected is blocked', /Choose a new status/.test(text('#r-error')) && store().get(entry.id).status === 'approved');

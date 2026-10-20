@@ -422,10 +422,10 @@
     const attention = R.needsAttention(entries, now);
 
     const statuses = [
-      { key: '', label: 'All statuses', n: entries.length },
+      { key: '', label: 'All', n: entries.length },
       { key: 'submitted', label: 'New', n: counts.submitted },
       { key: 'resubmitted', label: 'Resubmitted', n: counts.resubmitted },
-      { key: 'in_review', label: 'In review', n: counts.in_review },
+      { key: 'in_review', label: 'In Review', n: counts.in_review },
       { key: 'changes_requested', label: 'Waiting on creator', n: counts.changes_requested },
       { key: 'approved', label: 'Approved', n: counts.approved },
       { key: 'declined', label: 'Declined', n: counts.declined },
@@ -451,7 +451,7 @@
                   </li>`
                 )
                 .join('')}</ol>
-              <p class="muted small">Oldest first. New and resubmitted entries always appear here; entries “In review” appear after ${R.STALE_REVIEW_DAYS} days without a decision.</p>`
+              <p class="muted small">Oldest first. New and resubmitted entries always appear here; entries “In Review” appear after ${R.STALE_REVIEW_DAYS} days without a decision.</p>`
             : '<p>You’re all caught up. 🎉</p>'
         }
       </section>

@@ -48,7 +48,7 @@ Then open <http://localhost:8000>. The app creates a SQLite database at `data/ja
 | Creator | Submit a title, category, description and playable link. A live checklist shows what's missing before you submit. Your draft is saved as you type. |
 | Creator | Open **My entries** to see each entry's status and the organizer's feedback. If changes were requested, you can edit the entry and resubmit it. |
 | Organizer | Use the **Dashboard**. It shows a "Needs your attention" list (oldest first), and a table of all entries you can filter by search, status (with counts) and category. |
-| Organizer | Open an entry and move it to *In review*, *Changes requested*, *Approved* or *Declined*. Feedback is required when you request changes or decline. Every step is kept in the entry's history. |
+| Organizer | Open an entry and move it to *In Review*, *Changes requested*, *Approved* or *Declined*. Feedback is required when you request changes or decline. Every step is kept in the entry's history. |
 
 ## How it fits together
 

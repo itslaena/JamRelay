@@ -31,7 +31,7 @@ STATIC_FILES = ("index.html",)
 CATEGORIES = ["Action", "Puzzle", "Narrative", "Experimental", "Multiplayer"]
 STATUS_LABELS = {
     "submitted": "New",
-    "in_review": "In review",
+    "in_review": "In Review",
     "changes_requested": "Changes requested",
     "resubmitted": "Resubmitted",
     "approved": "Approved",

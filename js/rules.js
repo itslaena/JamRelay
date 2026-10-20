@@ -7,7 +7,7 @@
 
   const STATUS_LABELS = {
     submitted: 'New',
-    in_review: 'In review',
+    in_review: 'In Review',
     changes_requested: 'Changes requested',
     resubmitted: 'Resubmitted',
     approved: 'Approved',
@@ -142,7 +142,7 @@
     }
     if (entry.status === 'resubmitted') return 'Resubmitted after changes — ready for another look';
     if (entry.status === 'in_review' && waited >= STALE_REVIEW_DAYS) {
-      return `In review for ${plural(waited, 'day')} with no decision`;
+      return `In Review for ${plural(waited, 'day')} with no decision`;
     }
     return null;
   }

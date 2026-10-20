@@ -18,6 +18,14 @@ A small tool for running game jam submissions. Creators submit an entry, the org
 
 > These are my assumptions from how jams are typically run, not findings from research. Talking to two or three real organizers would be the first step before building further.
 
+**How I'd know it's working (proposed measures, no results yet).** These would be measured during a real jam. I have no baseline or results for any of them.
+
+| Measure | What it shows | Can the app measure it today? |
+|---|---|---|
+| **Time to first review**: from submission to the organizer's first status change | Whether entries get stuck without a decision | Yes. Both times are already in the entry history. |
+| **Share of entries needing corrections**: entries that get *Changes requested* at least once | Whether incomplete or unplayable entries still reach the organizer | Yes, from the history. |
+| **Submission completion rate**: creators who submit, out of those who start the form | Whether the checks help people finish or just get in the way | Not yet. The app would also need to record when someone starts the form. |
+
 ## 2. Scope: what I built, and what I deliberately left out
 
 **Built:** a submission form with a live "Ready to submit?" checklist; a creator view with status and feedback, plus edit and resubmit; an organizer dashboard (a needs-attention queue, status tiles, search and filter); a review screen where feedback is required for negative decisions; and a full history of every entry.
@@ -25,11 +33,11 @@ A small tool for running game jam submissions. Creators submit an entry, the org
 | Left out | Why |
 |---|---|
 | **Accounts and login** | This is the biggest gap. Anyone can open the organizer dashboard. For a demo, the roles are separate pages and "My entries" is tracked per browser. Real auth adds a lot of work without changing the core flow I wanted to test. |
-| **Checking that links actually load** | The app checks that a link is a well-formed public web address, not that the page works. A live check needs a server-side fetch with timeouts and handling for itch.io's private pages. Because broken links are the problem's #1 cause, **this is the first thing I'd add next.** |
+| **Checking that links actually load** | The app checks that a link is a well-formed public web address, not that the page works. A live check needs a server-side fetch with timeouts and handling for itch.io's private pages. Unplayable links are my highest-priority assumption about what goes wrong (see section 1), so **this is the first thing I'd add next.** |
 | **Judging, scoring and ratings** | That's a separate job that happens after a jam. This tool stops at *accepted into the jam*. |
 | **File uploads** | Jam games are almost always hosted on itch.io or similar, so a link covers the real case without storage or virus-scanning work. |
 | **Email notifications** | Creators check status in the app. Email is useful but adds an outside service and failure cases. |
-| **Multiple jams, multiple organizers, deadline enforcement** | One jam with one organizer keeps the data model simple. A deadline is a single date check to add later. |
+| **Multiple jams, multiple organizers, deadline enforcement** | One jam with one organizer keeps the data model simple. Deadline enforcement was outside this prototype's scope, because it raises real decisions: time zones, whether late entries are allowed, and whether a resubmission after the deadline still counts. |
 
 ## 3. Acceptance criteria: "flag missing information before submission"
 
@@ -59,7 +67,9 @@ There are three layers of automated tests, plus manual checks in a real browser.
 | **Review rules** | Feedback is required to request changes or decline. Impossible status changes are blocked. | rules, API, smoke |
 | **Safety** | A title containing HTML is shown as text, not run. The server won't serve its own code or the database file. | smoke, API |
 
-**Totals:** 23 rule tests, 23 API and database tests, and 31 end-to-end browser checks, all passing. I also looked at every screen at desktop and phone width (390px).
+**Totals:** 23 rule tests, 23 API and database tests, and 31 end-to-end browser checks, all passing (last run 2026-10-20; the browser checks ran in headless Chrome).
+
+**Layout:** on 2026-10-20 the submit, My entries, dashboard and review screens were checked from screenshots at desktop (1280px) and phone (390px) width, in dark mode. No screen scrolls sideways, and on a phone the dashboard table scrolls inside its own box. Not yet checked: light mode, and the resubmission form at phone width.
 
 **Problems I caught along the way:**
 
@@ -82,7 +92,7 @@ What worked: an empty submission listed all five gaps and moved focus to the fir
 | Filter tiles changed the table but not the "Needs your attention" list, and it wasn't obvious why. | Added a heading, "Filter entries below", noting that the list above always shows everything that needs the organizer. | Keeping the queue unfiltered is deliberate, so the fix is to make the controls' scope clear, not to change the behavior. |
 | Reviewing a resubmission means remembering the old version, because there's no way to compare old and new text. | **Not built yet.** A small "What changed" view on the review screen is the next idea after link checking. | Useful, but larger. The creator's note covers most of the need for now. |
 
-Each fix has a new end-to-end check (now 31). Run against the old code, those checks fail on exactly the problems above. Against the new code, they pass.
+Each fix has a new end-to-end check (now 31 in total). I also ran the updated test against the code from before these fixes: 27 passed and 4 failed, and each failure traced back to one of the three problems above. With the fixes, all 31 pass.
 
 **Round 2: real people (planned).** Two people, about 10 minutes each, thinking aloud. One plays a creator, one plays the organizer. I watch and don't help.
 

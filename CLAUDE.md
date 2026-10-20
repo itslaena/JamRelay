@@ -17,7 +17,7 @@ Portfolio project for a **PM internship application**. A small creator-submissio
 - Run: `python3 server.py`, then open http://localhost:8000
 - `python3 -m unittest discover -s tests`: 23 API and database tests
 - `./tests/run.sh`: 23 rule tests (macOS JavaScriptCore). Same tests in the browser at `/tests/index.html`
-- `/tests/smoke.html` with the server running: 31 end-to-end browser checks (it resets the demo data)
+- `/tests/smoke.html` with the server running: 34 end-to-end browser checks (it resets the demo data)
 - All of these passed as of 2026-10-20.
 
 ## Write-up (`WRITEUP.md`): the most important deliverable
@@ -27,5 +27,5 @@ Its six sections follow the user's rubric: the user's problem, scope cuts, accep
 - Next feature named in the write-up: checking that playable links actually load. After that: a "What changed" view for resubmissions.
 
 ## Status
-- `git init` was done, but **nothing is committed yet**. No remote.
+- Committed on `main` and pushed to the public repo https://github.com/itslaena/JamRelay (renamed from JamDesk).
 - The user's preferences: readable, larger font sizes, and plain-language explanations.

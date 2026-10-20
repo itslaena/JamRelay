@@ -49,7 +49,7 @@ This is the most important feature, because it attacks the first half of the pro
 | AC2 | **When** I press Submit with anything missing, **then** nothing is saved, a summary lists every problem as a link to that field, and focus moves to the first problem. | smoke test |
 | AC3 | **When** I'm typing in a field for the first time, **then** I don't see an error for it until I leave the field or try to submit. The checklist still updates live. | manual |
 | AC4 | **When** my link isn't a full public web address (e.g. `itch.io/my-game`, `localhost`, `ftp://…`), **then** it's flagged with an example of the right format. | rule, API and smoke tests |
-| AC5 | **When** my title matches an existing entry, ignoring capitalization and extra spaces, **then** it's flagged before I submit. | rule, API and smoke tests; also a database constraint |
+| AC5 | **When** my title matches an existing entry, ignoring capitalization and spaces at the start or end, **then** it's flagged before I submit. | rule, API and smoke tests; also a database constraint |
 | AC6 | **When** all five items are complete, **then** the checklist says I'm ready, and submitting saves the entry as **New** and shows a confirmation with the entry ID. | smoke test |
 | AC7 | **When** someone skips the form and sends data straight to the API, **then** the same rules apply and the API returns the same field-by-field messages. | API tests |
 | AC8 | **When** I leave the page halfway through, **then** my draft is still there when I come back. | manual |
@@ -67,9 +67,9 @@ There are three layers of automated tests, plus manual checks in a real browser.
 | **Review rules** | Feedback is required to request changes or decline. Impossible status changes are blocked. | rules, API, smoke |
 | **Safety** | A title containing HTML is shown as text, not run. The server won't serve its own code or the database file. | smoke, API |
 
-**Totals:** 23 rule tests, 23 API and database tests, and 31 end-to-end browser checks, all passing (last run 2026-10-20; the browser checks ran in headless Chrome).
+**Totals:** 23 rule tests, 23 API and database tests, and 34 end-to-end browser checks, all passing (last run 2026-10-20; the browser checks ran in headless Chrome).
 
-**Layout:** on 2026-10-20 the submit, My entries, dashboard and review screens were checked from screenshots at desktop (1280px) and phone (390px) width, in dark mode. No screen scrolls sideways, and on a phone the dashboard table scrolls inside its own box. Not yet checked: light mode, and the resubmission form at phone width.
+**Layout:** on 2026-10-20 the submit, My entries, dashboard and review screens were checked from screenshots at desktop (1280px) and phone (390px) width, in dark mode. No screen scrolls sideways, and on a phone the dashboard table scrolls inside its own box. Light mode was checked on the submit and dashboard screens at desktop width (the README screenshots). Not yet checked: light mode on a phone, and the resubmission form at phone width.
 
 **Problems I caught along the way:**
 
@@ -92,7 +92,16 @@ What worked: an empty submission listed all five gaps and moved focus to the fir
 | Filter tiles changed the table but not the "Needs your attention" list, and it wasn't obvious why. | Added a heading, "Filter entries below", noting that the list above always shows everything that needs the organizer. | Keeping the queue unfiltered is deliberate, so the fix is to make the controls' scope clear, not to change the behavior. |
 | Reviewing a resubmission means remembering the old version, because there's no way to compare old and new text. | **Not built yet.** A small "What changed" view on the review screen is the next idea after link checking. | Useful, but larger. The creator's note covers most of the need for now. |
 
-Each fix has a new end-to-end check (now 31 in total). I also ran the updated test against the code from before these fixes: 27 passed and 4 failed, and each failure traced back to one of the three problems above. With the fixes, all 31 pass.
+Each fix got a new end-to-end check. I also ran the updated test against the code from before these fixes: 27 passed and 4 failed, and each failure traced back to one of the three problems above. With the fixes, all 31 checks at that point passed.
+
+**Round 1 follow-up: AI-assisted review.** A second AI pass compared the docs, code and tests, and tried the app with browser storage deliberately blocked.
+
+| What was observed | What I changed | Why |
+|---|---|---|
+| With browser storage blocked, the form still said "Draft saved", and after submitting, the creator landed on "Entry not found". The entry *was* saved on the server, but the browser couldn't remember it was theirs. | Saving now reports whether it worked. If it didn't, the form warns that drafts will be lost. After submitting, the creator sees a confirmation with their entry ID instead of an error page. | The app was telling people something untrue at the exact moment they needed to trust it. |
+| The acceptance criteria said duplicate titles ignore "extra spaces", but `Lantern  Ferry` (two spaces) was accepted next to `Lantern Ferry`. | Narrowed AC5 to "spaces at the start or end", which is what the app actually checks. | A documentation fix was enough. Treating repeated inner spaces as the same title is a reasonable scope cut. |
+
+The storage check is new in the end-to-end test (now 34 checks). Against the code before the fix, 2 of the new checks failed: "Draft saved" and "Entry not found". With the fix, all 34 pass.
 
 **Round 2: real people (planned).** Two people, about 10 minutes each, thinking aloud. One plays a creator, one plays the organizer. I watch and don't help.
 
@@ -129,4 +138,4 @@ Each fix has a new end-to-end check (now 31 in total). I also ran the updated te
 - **History is append-only.** Decisions are new rows, never overwrites, so the creator and organizer always see the full conversation, and nothing is lost if someone changes their mind.
 - **Title uniqueness is enforced twice.** The API checks it and returns a friendly message, and the database has a case-insensitive unique index as a backstop.
 - **Trade-off:** the rules exist in both JavaScript and Python, so they can drift apart. They're kept side by side and tested on both sides. In a larger product I'd generate both from one shared definition, or only validate on the server and accept the slower feedback.
-- **"Needs attention" is computed, not stored.** New and resubmitted entries always qualify, and *In review* entries qualify after two days without a decision. Because it's calculated on each page load from timestamps, it can't go stale.
+- **"Needs attention" is computed, not stored.** New and resubmitted entries always qualify, and *In review* entries qualify after two days without a decision. It's recalculated from timestamps every time a page is shown, so there's no stored flag to forget to update. An open dashboard doesn't refresh itself, though: the queue updates when the organizer reloads or moves to another page.

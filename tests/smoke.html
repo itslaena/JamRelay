@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JamDesk Smoke Test</title>
+  <style>
+    body { font: 17px/1.5 system-ui, sans-serif; max-width: 900px; margin: 2rem auto; padding: 0 16px; }
+    .pass { color: #1a7f37; } .fail { color: #b42318; font-weight: 600; }
+    iframe { width: 100%; height: 480px; border: 1px solid #ccc; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <h1>JamDesk end-to-end smoke test</h1>
+  <p>Drives the real app through the full creator → organizer loop. Run it through the app server:
+     <code>python3 server.py</code>, then open <code>http://localhost:8000/tests/smoke.html</code>.
+     <strong>It resets the demo data.</strong></p>
+  <p id="summary">Running…</p>
+  <ul id="out"></ul>
+  <iframe id="app" title="App under test"></iframe>
+
+  <script>
+    (async function () {
+      const results = [];
+      const frame = document.getElementById('app');
+      const tick = (ms) => new Promise((r) => setTimeout(r, ms || 30));
+      const doc = () => frame.contentDocument;
+      const $ = (sel) => doc().querySelector(sel);
+      const $$ = (sel) => Array.from(doc().querySelectorAll(sel));
+      const text = (sel) => ($(sel) ? $(sel).textContent.trim() : '');
+
+      function check(name, cond, detail) {
+        results.push({ name, ok: !!cond, detail: cond ? '' : detail || '' });
+      }
+      async function nav(hash) {
+        frame.contentWindow.location.hash = hash;
+        await tick(60);
+      }
+      function fill(name, value) {
+        const el = $(`#entry-form [name=${name}]`);
+        el.value = value;
+        el.dispatchEvent(new Event(el.tagName === 'SELECT' ? 'change' : 'input', { bubbles: true }));
+      }
+      const store = () => frame.contentWindow.JamStore;
+
+      // fresh state
+      await fetch('/api/reset', { method: 'POST' });
+      localStorage.removeItem('jamdesk.mine.v1');
+      localStorage.removeItem('jamdesk.draft.v1');
+      frame.src = '../index.html#/submit';
+      await new Promise((r) => (frame.onload = r));
+      await tick(60);
+      const startCount = store().all().length;
+
+      // 1. Empty submit is blocked and every gap is listed
+      $('#entry-form button[type=submit]').click();
+      await tick();
+      check('empty submit shows an error summary', !$('#error-summary').hidden);
+      check('error summary lists all 5 missing items', $$('#error-summary li').length === 5, `got ${$$('#error-summary li').length}`);
+      check('empty submit creates no entry', store().all().length === startCount);
+      check('checklist flags 5 missing items', $$('#checklist li.missing').length === 5);
+
+      // 2. Duplicate title and bad link are flagged
+      fill('title', 'lantern ferry');
+      fill('link', 'itch.io/my-game');
+      await tick();
+      check('duplicate title is flagged inline', /already uses this title/.test(text('#e-title')), text('#e-title'));
+      check('bad link is flagged inline', /full web address/.test(text('#e-link')), text('#e-link'));
+
+      // 3. Valid submission (title includes HTML to check it is escaped, not run)
+      const title = 'Moth <img src=x onerror="window.__xss=1"> Lamp';
+      fill('creator', 'Smoke Test Studio');
+      fill('title', title);
+      fill('category', 'Puzzle');
+      fill('description', 'A tiny moth follows your lamp through a maze of curtains. Ten short levels.');
+      fill('link', 'https://example.itch.io/moth-lamp');
+      await tick();
+      check('checklist turns all green when complete', $$('#checklist li.ok').length === 5);
+      $('#entry-form button[type=submit]').click();
+      await tick(80);
+      const entry = store().all().find((e) => e.title === title);
+      check('valid submission is saved as New', entry && entry.status === 'submitted');
+      check('creator lands on their entry with a confirmation', /#\/mine\//.test(frame.contentWindow.location.hash) && $('.flash'));
+      check('HTML in a title is shown as text, not executed', !$('main img') && !frame.contentWindow.__xss);
+
+      // 4. Dashboard shows it as needing attention
+      await nav('#/dashboard');
+      const attention = $$('.attention-list li').map((li) => li.textContent);
+      check('new entry appears in "Needs attention"', attention.some((t) => t.includes('Moth')));
+      check('HTML in a title is escaped on the dashboard', !$('main img') && !frame.contentWindow.__xss);
+
+      // 5. Organizer must give feedback to request changes
+      await nav('#/review/' + entry.id);
+      $('input[name=status][value=changes_requested]').click();
+      await tick();
+      check('feedback label switches to (required)', text('#fb-req') === '(required)');
+      $('#review-form button[type=submit]').click();
+      await tick();
+      check('requesting changes without feedback is blocked', /Feedback is required/.test(text('#r-error')) && store().get(entry.id).status === 'submitted');
+      $('#r-feedback').value = 'Please add a controls screen.';
+      $('#review-form button[type=submit]').click();
+      await tick(80);
+      check('changes requested with feedback is saved', store().get(entry.id).status === 'changes_requested');
+
+      // 6. Creator sees the feedback and resubmits
+      await nav('#/mine/' + entry.id);
+      check('creator sees the organizer feedback', /add a controls screen/.test(text('.callout')));
+      fill('description', 'A tiny moth follows your lamp through a maze of curtains. Now with a controls screen.');
+      $('#entry-form button[type=submit]').click();
+      await tick(80);
+      check('resubmission moves entry to Resubmitted', store().get(entry.id).status === 'resubmitted');
+      check('resubmission keeps the updated description', /controls screen/.test(store().get(entry.id).description));
+
+      await nav('#/dashboard');
+      check('resubmitted entry is back in "Needs attention"', $$('.attention-list li').some((li) => li.textContent.includes('Moth') && /Resubmitted/.test(li.textContent)));
+
+      // 7. Organizer approves; it leaves the attention list
+      await nav('#/review/' + entry.id);
+      $('input[name=status][value=approved]').click();
+      $('#review-form button[type=submit]').click();
+      await tick(80);
+      check('approval is saved', store().get(entry.id).status === 'approved');
+      check('history records every step', store().get(entry.id).history.map((h) => h.to).join(',') === 'submitted,changes_requested,resubmitted,approved');
+      await nav('#/dashboard');
+      check('approved entry leaves "Needs attention"', !$$('.attention-list li').some((li) => li.textContent.includes('Moth')));
+
+      // 8. Single-option review: an unchecked lone radio must not count as chosen
+      await nav('#/review/' + entry.id);
+      check('approved entry offers only "In review"', $$('input[name=status]').length === 1);
+      $('#review-form button[type=submit]').click();
+      await tick();
+      check('saving with nothing selected is blocked', /Choose a new status/.test(text('#r-error')) && store().get(entry.id).status === 'approved');
+
+      // 9. Dashboard filter tiles
+      await nav('#/dashboard');
+      $('.tile[data-status=approved]').click();
+      await tick();
+      const rows = $$('#table tbody tr');
+      check('status tile filters the table', rows.length > 0 && rows.every((tr) => /Approved/.test(tr.textContent)));
+
+      // 10. Persistence
+      frame.contentWindow.location.reload();
+      await new Promise((r) => (frame.onload = r));
+      await tick(60);
+      const fromApi = await (await fetch('/api/entries/' + entry.id)).json();
+      check('the database holds the final state', fromApi.entry.status === 'approved' && fromApi.entry.history.length === 4);
+      check('data survives a page reload', store().get(entry.id) && store().get(entry.id).status === 'approved');
+
+      // clean up so the demo starts fresh afterwards
+      await fetch('/api/reset', { method: 'POST' });
+      localStorage.removeItem('jamdesk.mine.v1');
+      localStorage.removeItem('jamdesk.draft.v1');
+
+      const failed = results.filter((r) => !r.ok).length;
+      document.getElementById('summary').textContent = `${results.length - failed} passed, ${failed} failed`;
+      document.getElementById('out').innerHTML = results
+        .map((r) => `<li class="${r.ok ? 'pass' : 'fail'}">${r.ok ? '✓' : '✗'} ${r.name}${r.detail ? ' — ' + r.detail : ''}</li>`)
+        .join('');
+    })().catch((e) => {
+      document.getElementById('summary').textContent = 'Smoke test crashed: ' + e.message;
+    });
+  </script>
+</body>
+</html>

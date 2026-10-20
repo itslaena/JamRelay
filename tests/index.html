@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>JamDesk Tests</title>
+  <style>
+    body { font: 17px/1.5 system-ui, sans-serif; max-width: 760px; margin: 2rem auto; padding: 0 16px; }
+    li { padding: 2px 0; }
+    .pass { color: #1a7f37; }
+    .fail { color: #b42318; font-weight: 600; }
+    @media (prefers-color-scheme: dark) { body { background: #141417; color: #ececf1; } .pass { color: #6fd68b; } .fail { color: #ff8a80; } }
+  </style>
+</head>
+<body>
+  <h1>JamDesk rule tests</h1>
+  <p id="summary"></p>
+  <ul id="out"></ul>
+  <script src="../js/rules.js"></script>
+  <script src="rules.test.js"></script>
+  <script>
+    const r = window.JamTestResults;
+    const failed = r.filter((t) => !t.ok).length;
+    document.getElementById('summary').textContent = `${r.length - failed} passed, ${failed} failed`;
+    document.getElementById('out').innerHTML = r
+      .map((t) => `<li class="${t.ok ? 'pass' : 'fail'}">${t.ok ? '✓' : '✗'} ${t.name}${t.ok ? '' : ' — ' + t.message}</li>`)
+      .join('');
+  </script>
+</body>
+</html>

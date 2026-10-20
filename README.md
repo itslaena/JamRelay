@@ -59,4 +59,4 @@ python3 -m unittest discover -s tests -v   # API + database: 23 tests
 With the server running, you can also open these pages:
 
 - <http://localhost:8000/tests/index.html>: the same rule tests, run in the browser
-- <http://localhost:8000/tests/smoke.html>: an end-to-end test that drives the real app from submission through review, requested changes and resubmission to approval (27 checks). **It resets the demo data.**
+- <http://localhost:8000/tests/smoke.html>: an end-to-end test that drives the real app from submission through review, requested changes and resubmission to approval (31 checks). **It resets the demo data.**

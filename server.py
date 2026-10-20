@@ -375,6 +375,13 @@ class Handler(SimpleHTTPRequestHandler):
         if not getattr(self.server, "quiet", False):
             super().log_message(fmt, *args)
 
+    def end_headers(self):
+        # App files: let the browser cache them but check for a newer copy on each
+        # load, so edits show up on a normal reload. (API replies set no-store.)
+        if not self.path.startswith("/api/"):
+            self.send_header("Cache-Control", "no-cache")
+        super().end_headers()
+
     def send_json(self, status, body):
         payload = json.dumps(body).encode()
         self.send_response(status)

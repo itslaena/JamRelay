@@ -104,14 +104,14 @@
             mode === 'resubmit'
               ? `<div class="field">
                   <label for="f-note">What did you change? <span class="optional">(optional)</span></label>
-                  <textarea id="f-note" name="note" rows="3"></textarea>
+                  <textarea id="f-note" name="note" rows="3">${esc(v.note)}</textarea>
                 </div>`
               : ''
           }
 
           <div class="actions">
             <button type="submit" class="btn btn--primary">${mode === 'resubmit' ? 'Resubmit for review' : 'Submit entry'}</button>
-            ${mode === 'resubmit' ? '' : '<span class="muted" id="draft-status">Drafts save automatically.</span>'}
+            <span class="muted" id="draft-status">${mode === 'resubmit' ? 'Your changes save automatically.' : 'Drafts save automatically.'}</span>
           </div>
         </form>
 
@@ -142,8 +142,13 @@
   function bindForm(form, opts) {
     const touched = new Set();
     let attempted = false;
+    const summary = document.getElementById('error-summary');
+    const button = form.querySelector('button[type=submit]');
+    // Which fields the error summary currently lists, so it can be kept up to date.
+    let summaryFields = '';
 
-    function update() {
+    // `evt` is set only for real edits, so the initial render doesn't count as a change.
+    function update(evt) {
       const data = readForm(form);
       const { errors } = R.validateEntry(data, S.all(), opts.selfId);
 
@@ -171,7 +176,8 @@
       const len = data.description.trim().length;
       document.getElementById('desc-count').textContent = `${len} / ${R.LIMITS.description.max}`;
 
-      if (opts.onChange) opts.onChange(data);
+      if (summaryFields) renderSummary(errors);
+      if (evt && opts.onChange) opts.onChange(data);
       return errors;
     }
 
@@ -188,8 +194,20 @@
       true
     );
 
-    const summary = document.getElementById('error-summary');
-    const button = form.querySelector('button[type=submit]');
+    // Lists the remaining problems, dropping each one as it's fixed and hiding
+    // the summary once none are left. Only redraws when the list changes.
+    function renderSummary(errors) {
+      const bad = FIELDS.filter((f) => errors[f]);
+      const key = bad.map((f) => f + ':' + errors[f]).join('|');
+      if (key === summaryFields) return;
+      summaryFields = key;
+      summary.hidden = !bad.length;
+      summary.innerHTML = bad.length
+        ? `<strong>Please fix ${bad.length} thing${bad.length === 1 ? '' : 's'} before submitting:</strong><ul>` +
+          bad.map((f) => `<li><a href="#" data-focus="${f}">${esc(errors[f])}</a></li>`).join('') +
+          '</ul>'
+        : '';
+    }
 
     function showErrors(errors) {
       const bad = FIELDS.filter((f) => errors[f]);
@@ -197,11 +215,8 @@
         document.getElementById('e-' + f).textContent = errors[f];
         form.elements[f].setAttribute('aria-invalid', 'true');
       });
-      summary.hidden = false;
-      summary.innerHTML =
-        `<strong>Please fix ${bad.length} thing${bad.length === 1 ? '' : 's'} before submitting:</strong><ul>` +
-        bad.map((f) => `<li><a href="#" data-focus="${f}">${esc(errors[f])}</a></li>`).join('') +
-        '</ul>';
+      summaryFields = '';
+      renderSummary(errors);
       form.elements[bad[0]].focus();
     }
 
@@ -210,6 +225,7 @@
       attempted = true;
       const errors = update();
       if (Object.keys(errors).length) return showErrors(errors);
+      summaryFields = '';
       summary.hidden = true;
       button.disabled = true;
       try {
@@ -218,6 +234,7 @@
         // The server re-validates; show its field errors the same way, or a general message.
         if (err.errors) showErrors(err.errors);
         else {
+          summaryFields = '';
           summary.hidden = false;
           summary.textContent = err.message;
         }
@@ -248,18 +265,12 @@
       </header>
       ${formHtml(draft, 'create')}`;
 
-    let timer = null;
     bindForm(document.getElementById('entry-form'), {
       onChange(data) {
-        clearTimeout(timer);
-        timer = setTimeout(() => {
-          S.saveDraft(data);
-          const s = document.getElementById('draft-status');
-          if (s) s.textContent = 'Draft saved.';
-        }, 400);
+        S.saveDraft(data);
+        document.getElementById('draft-status').textContent = 'Draft saved.';
       },
       async onSubmit(data) {
-        clearTimeout(timer);
         const entry = await S.create(data);
         S.clearDraft();
         flash = `Submitted! “${entry.title}” is now waiting for review (${entry.id}).`;
@@ -345,6 +356,8 @@
     if (!entry || !S.isMine(id)) return renderNotFound();
 
     const needsAction = R.canResubmit(entry.status);
+    if (!needsAction) S.clearDraft(entry.id);
+    const draft = needsAction ? S.loadDraft(entry.id) : null;
     view.innerHTML = `
       ${takeFlash()}
       <p><a href="#/mine">← My entries</a></p>
@@ -359,16 +372,22 @@
               <blockquote>${esc(latestFeedback(entry))}</blockquote>
               <p>Update your entry below and resubmit — it goes straight back into the review queue.</p>
             </div>
-            ${formHtml(entry, 'resubmit')}`
+            ${formHtml(Object.assign({}, entry, draft), 'resubmit')}`
           : detailsHtml(entry)
       }
       ${historyHtml(entry, 'creator')}`;
 
     if (needsAction) {
-      bindForm(document.getElementById('entry-form'), {
+      const form = document.getElementById('entry-form');
+      bindForm(form, {
         selfId: entry.id,
+        onChange(data) {
+          S.saveDraft(Object.assign({}, data, { note: form.elements.note.value }), entry.id);
+          document.getElementById('draft-status').textContent = 'Changes saved. You can leave and come back.';
+        },
         async onSubmit(data, note) {
           await S.resubmit(entry.id, data, note);
+          S.clearDraft(entry.id);
           flash = 'Resubmitted. The organizer will take another look.';
           go('#/mine/' + entry.id);
         },
@@ -422,7 +441,8 @@
         }
       </section>
 
-      <div class="tiles" role="group" aria-label="Filter by status">
+      <h2 class="filter-scope" id="filter-scope">Filter entries below <span class="muted small">(the list above always shows everything that needs you)</span></h2>
+      <div class="tiles" role="group" aria-labelledby="filter-scope">
         ${tiles
           .map(
             (t) => `<button type="button" class="tile${dashFilter.status === t.key ? ' is-active' : ''}" data-status="${t.key}" aria-pressed="${dashFilter.status === t.key}">

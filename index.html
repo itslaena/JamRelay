@@ -13,11 +13,15 @@
     <div class="wrap header-inner">
       <a class="brand" href="#/submit"><span class="brand-mark" aria-hidden="true">◆</span> JamDesk</a>
       <nav aria-label="Main">
-        <span class="nav-group-label">Creator</span>
-        <a data-nav="submit" href="#/submit">Submit</a>
-        <a data-nav="mine" href="#/mine">My entries</a>
-        <span class="nav-group-label">Organizer</span>
-        <a data-nav="dashboard" href="#/dashboard">Dashboard</a>
+        <div class="nav-group nav-group--creator" role="group" aria-labelledby="nav-creator">
+          <span class="nav-group-label" id="nav-creator">Creator</span>
+          <a data-nav="submit" href="#/submit">Submit</a>
+          <a data-nav="mine" href="#/mine">My entries</a>
+        </div>
+        <div class="nav-group nav-group--organizer" role="group" aria-labelledby="nav-organizer">
+          <span class="nav-group-label" id="nav-organizer">Organizer</span>
+          <a data-nav="dashboard" href="#/dashboard">Dashboard</a>
+        </div>
       </nav>
     </div>
   </header>

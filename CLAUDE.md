@@ -17,14 +17,14 @@ Portfolio project for a **PM internship application**. A small creator-submissio
 - Run: `python3 server.py`, then open http://localhost:8000
 - `python3 -m unittest discover -s tests`: 23 API and database tests
 - `./tests/run.sh`: 23 rule tests (macOS JavaScriptCore). Same tests in the browser at `/tests/index.html`
-- `/tests/smoke.html` with the server running: 27 end-to-end browser checks (it resets the demo data)
+- `/tests/smoke.html` with the server running: 31 end-to-end browser checks (it resets the demo data)
 - All of these passed as of 2026-10-20.
 
 ## Write-up (`WRITEUP.md`): the most important deliverable
 Its six sections follow the user's rubric: the user's problem, scope cuts, acceptance criteria, quality checks, responding to feedback, and how the interface, API and database interact.
-- **Section 5 (responding to feedback) is a placeholder plan.** Real user feedback hasn't been collected yet. Never invent results; help the user fill it in after real sessions.
+- **Section 5 (responding to feedback):** round 1 is an AI-assisted workflow test (2026-10-20), and it must stay labeled as AI-assisted, never as human participants. Round 2 (two real people) is still a placeholder. Never invent results; help the user fill it in after real sessions.
 - Section 1 states that the user problems are assumptions, not research. Keep that honest.
-- Next feature named in the write-up: checking that playable links actually load.
+- Next feature named in the write-up: checking that playable links actually load. After that: a "What changed" view for resubmissions.
 
 ## Status
 - `git init` was done, but **nothing is committed yet**. No remote.

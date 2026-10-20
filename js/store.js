@@ -5,7 +5,7 @@
 // refresh() before each page render; writes go to the API and update the copy.
 //
 // The only thing kept in the browser is which entries *this* browser submitted
-// ("My entries") and the unsent form draft — there are no accounts in this demo.
+// ("My entries") and unsent form drafts — there are no accounts in this demo.
 (function (root) {
   'use strict';
 
@@ -13,6 +13,8 @@
   const DRAFT_KEY = 'jamdesk.draft.v1';
 
   let entries = [];
+
+  const draftKey = (id) => (id ? `${DRAFT_KEY}.${id}` : DRAFT_KEY);
 
   // Error thrown for any non-2xx API response. `errors` holds per-field
   // messages for validation failures; `message` is a general one.
@@ -119,7 +121,14 @@
   async function reset() {
     await api('POST', '/api/reset');
     remove(MINE_KEY);
-    remove(DRAFT_KEY);
+    // Entry ids restart after a reset, so drop every draft, not just the new-entry one.
+    try {
+      Object.keys(root.localStorage)
+        .filter((k) => k.startsWith(DRAFT_KEY))
+        .forEach(remove);
+    } catch (e) {
+      /* ignore */
+    }
     await refresh();
   }
 
@@ -134,8 +143,9 @@
     resubmit,
     setStatus,
     reset,
-    saveDraft: (draft) => write(DRAFT_KEY, draft),
-    loadDraft: () => read(DRAFT_KEY),
-    clearDraft: () => remove(DRAFT_KEY),
+    // Pass an entry id for a resubmission draft; omit it for the new-entry form.
+    saveDraft: (draft, id) => write(draftKey(id), draft),
+    loadDraft: (id) => read(draftKey(id)),
+    clearDraft: (id) => remove(draftKey(id)),
   };
 })(window);

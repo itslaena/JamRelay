@@ -46,7 +46,7 @@
       // fresh state
       await fetch('/api/reset', { method: 'POST' });
       localStorage.removeItem('jamdesk.mine.v1');
-      localStorage.removeItem('jamdesk.draft.v1');
+      Object.keys(localStorage).filter((k) => k.startsWith('jamdesk.draft.v1')).forEach((k) => localStorage.removeItem(k));
       frame.src = '../index.html#/submit';
       await new Promise((r) => (frame.onload = r));
       await tick(60);
@@ -76,6 +76,7 @@
       fill('link', 'https://example.itch.io/moth-lamp');
       await tick();
       check('checklist turns all green when complete', $$('#checklist li.ok').length === 5);
+      check('error summary clears once every problem is fixed', $('#error-summary').hidden, text('#error-summary'));
       $('#entry-form button[type=submit]').click();
       await tick(80);
       const entry = store().all().find((e) => e.title === title);
@@ -106,8 +107,13 @@
       await nav('#/mine/' + entry.id);
       check('creator sees the organizer feedback', /add a controls screen/.test(text('.callout')));
       fill('description', 'A tiny moth follows your lamp through a maze of curtains. Now with a controls screen.');
+      fill('note', 'Added a controls screen.');
+      await nav('#/mine');
+      await nav('#/mine/' + entry.id);
+      check('resubmission edits survive leaving the page', /controls screen/.test($('#f-description').value) && $('#f-note').value === 'Added a controls screen.');
       $('#entry-form button[type=submit]').click();
       await tick(80);
+      check('resubmission draft is cleared after resubmitting', localStorage.getItem('jamdesk.draft.v1.' + entry.id) === null);
       check('resubmission moves entry to Resubmitted', store().get(entry.id).status === 'resubmitted');
       check('resubmission keeps the updated description', /controls screen/.test(store().get(entry.id).description));
 
@@ -133,6 +139,7 @@
 
       // 9. Dashboard filter tiles
       await nav('#/dashboard');
+      check('filter controls say they apply to the table below', /Filter entries below/.test(text('#filter-scope')));
       $('.tile[data-status=approved]').click();
       await tick();
       const rows = $$('#table tbody tr');
@@ -149,7 +156,7 @@
       // clean up so the demo starts fresh afterwards
       await fetch('/api/reset', { method: 'POST' });
       localStorage.removeItem('jamdesk.mine.v1');
-      localStorage.removeItem('jamdesk.draft.v1');
+      Object.keys(localStorage).filter((k) => k.startsWith('jamdesk.draft.v1')).forEach((k) => localStorage.removeItem(k));
 
       const failed = results.filter((r) => !r.ok).length;
       document.getElementById('summary').textContent = `${results.length - failed} passed, ${failed} failed`;

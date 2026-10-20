@@ -59,7 +59,7 @@ There are three layers of automated tests, plus manual checks in a real browser.
 | **Review rules** | Feedback is required to request changes or decline. Impossible status changes are blocked. | rules, API, smoke |
 | **Safety** | A title containing HTML is shown as text, not run. The server won't serve its own code or the database file. | smoke, API |
 
-**Totals:** 23 rule tests, 23 API and database tests, and 27 end-to-end browser checks, all passing. I also looked at every screen at desktop and phone width (390px).
+**Totals:** 23 rule tests, 23 API and database tests, and 31 end-to-end browser checks, all passing. I also looked at every screen at desktop and phone width (390px).
 
 **Problems I caught along the way:**
 
@@ -69,13 +69,26 @@ There are three layers of automated tests, plus manual checks in a real browser.
 
 ## 5. Responding to feedback
 
-> **To fill in after a real session.** I haven't yet had someone else try JamDesk. I'm leaving this section as a plan rather than inventing results.
+> **Round 1 was an AI-assisted workflow test, not a session with people.** An AI assistant drove the app in a simulated browser against the running API, once as a creator and once as the organizer, and reported what worked and what didn't. It didn't judge visual layout, and it isn't a substitute for real users. The human sessions below are still to do.
 
-**Plan:** two people, about 10 minutes each, thinking aloud. One plays a creator, one plays the organizer. I watch and don't help.
+**Round 1: AI-assisted workflow test**
+
+What worked: an empty submission listed all five gaps and moved focus to the first; an unfinished draft survived leaving the page; the creator saw the organizer's feedback, resubmitted and got approved; the attention queue showed old submissions, stalled reviews and resubmissions with reasons; requesting changes without feedback was blocked.
+
+| What was observed | What I changed | Why |
+|---|---|---|
+| **High:** edits to a resubmission (description and the "what did you change?" note) were lost without warning when the creator opened another page and came back. | Resubmission edits now save in the browser as you type, separately for each entry, with a "Changes saved" note. The draft is cleared once the entry is resubmitted. | The first-time form already saved drafts, but the resubmit form, the step where a creator is fixing a problem, didn't. Losing that work is exactly the frustration the tool is meant to remove. |
+| **Medium:** after a failed submit, the error summary still said "Please fix 5 things" even when every field was complete and the checklist said "Everything looks good." | The summary now updates as fields are fixed, drops each resolved item, and disappears when nothing is left. | Two parts of the screen contradicted each other, so the creator couldn't tell which one to trust. |
+| Filter tiles changed the table but not the "Needs your attention" list, and it wasn't obvious why. | Added a heading, "Filter entries below", noting that the list above always shows everything that needs the organizer. | Keeping the queue unfiltered is deliberate, so the fix is to make the controls' scope clear, not to change the behavior. |
+| Reviewing a resubmission means remembering the old version, because there's no way to compare old and new text. | **Not built yet.** A small "What changed" view on the review screen is the next idea after link checking. | Useful, but larger. The creator's note covers most of the need for now. |
+
+Each fix has a new end-to-end check (now 31). Run against the old code, those checks fail on exactly the problems above. Against the new code, they pass.
+
+**Round 2: real people (planned).** Two people, about 10 minutes each, thinking aloud. One plays a creator, one plays the organizer. I watch and don't help.
 
 1. *Creator:* "Submit your game. Here's the title, description and link." (Give them a link without `https://`.)
 2. *Organizer:* "Which entry should you look at first, and why?"
-3. *Organizer:* "Ask the creator of Beacon Run to add a controls screen." Then *creator:* "Find out what the organizer wants and fix it."
+3. *Organizer:* "Ask the creator of Beacon Run to add a controls screen." Then *creator:* "Find out what the organizer wants and fix it." (This is also where I'll check whether the resubmission draft fix feels right to a person.)
 
 | What I observed | What I changed | Why |
 |---|---|---|

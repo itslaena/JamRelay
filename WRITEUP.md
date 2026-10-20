@@ -28,7 +28,7 @@ A small tool for running game jam submissions. Creators submit an entry, the org
 
 ## 2. Scope: what I built, and what I deliberately left out
 
-**Built:** a submission form with a live "Ready to submit?" checklist; a creator view with status and feedback, plus edit and resubmit; an organizer dashboard (a needs-attention queue, status tiles, search and filter); a review screen where feedback is required for negative decisions; and a full history of every entry.
+**Built:** a submission form with a live "Ready to submit?" checklist; a creator view with status and feedback, plus edit and resubmit; an organizer dashboard (a needs-attention queue, plus a table filtered by search, status and category); a review screen where feedback is required for negative decisions; and a full history of every entry.
 
 | Left out | Why |
 |---|---|
@@ -67,7 +67,7 @@ There are three layers of automated tests, plus manual checks in a real browser.
 | **Review rules** | Feedback is required to request changes or decline. Impossible status changes are blocked. | rules, API, smoke |
 | **Safety** | A title containing HTML is shown as text, not run. The server won't serve its own code or the database file. | smoke, API |
 
-**Totals:** 23 rule tests, 23 API and database tests, and 34 end-to-end browser checks, all passing (last run 2026-10-20; the browser checks ran in headless Chrome).
+**Totals:** 23 rule tests, 23 API and database tests, and 35 end-to-end browser checks, all passing (last run 2026-10-20; the browser checks ran in headless Chrome).
 
 **Layout:** on 2026-10-20 the submit, My entries, dashboard and review screens were checked from screenshots at desktop (1280px) and phone (390px) width, in dark mode. No screen scrolls sideways, and on a phone the dashboard table scrolls inside its own box. Light mode was checked on the submit and dashboard screens at desktop width (the README screenshots). Not yet checked: light mode on a phone, and the resubmission form at phone width.
 
@@ -100,8 +100,9 @@ Each fix got a new end-to-end check. I also ran the updated test against the cod
 |---|---|---|
 | With browser storage blocked, the form still said "Draft saved", and after submitting, the creator landed on "Entry not found". The entry *was* saved on the server, but the browser couldn't remember it was theirs. | Saving now reports whether it worked. If it didn't, the form warns that drafts will be lost. After submitting, the creator sees a confirmation with their entry ID instead of an error page. | The app was telling people something untrue at the exact moment they needed to trust it. |
 | The acceptance criteria said duplicate titles ignore "extra spaces", but `Lantern  Ferry` (two spaces) was accepted next to `Lantern Ferry`. | Narrowed AC5 to "spaces at the start or end", which is what the app actually checks. | A documentation fix was enough. Treating repeated inner spaces as the same title is a reasonable scope cut. |
+| Seven large status tiles gave counts and filters more visual weight than a seven-entry demo needs. | Replaced the tiles with a compact Status dropdown next to Search and Category, with counts in the options, such as "New (2)". | The queue is what tells the organizer what to do next, so it should be the most prominent thing on the page. |
 
-The storage check is new in the end-to-end test (now 34 checks). Against the code before the fix, 2 of the new checks failed: "Draft saved" and "Entry not found". With the fix, all 34 pass.
+The storage check is new in the end-to-end test (now 34 checks). Against the code before the fix, 2 of the new checks failed: "Draft saved" and "Entry not found". With the fix, all 34 pass. The Status dropdown also has its own check, bringing the total to 35.
 
 **Round 2: real people (planned).** Two people, about 10 minutes each, thinking aloud. One plays a creator, one plays the organizer. I watch and don't help.
 

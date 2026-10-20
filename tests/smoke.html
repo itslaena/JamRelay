@@ -137,13 +137,16 @@
       await tick();
       check('saving with nothing selected is blocked', /Choose a new status/.test(text('#r-error')) && store().get(entry.id).status === 'approved');
 
-      // 9. Dashboard filter tiles
+      // 9. Dashboard status filter
       await nav('#/dashboard');
       check('filter controls say they apply to the table below', /Filter entries below/.test(text('#filter-scope')));
-      $('.tile[data-status=approved]').click();
+      const opt = $$('#status option').find((o) => o.value === 'approved');
+      check('status options show counts', opt && /^Approved \(\d+\)$/.test(opt.textContent), opt && opt.textContent);
+      $('#status').value = 'approved';
+      $('#status').dispatchEvent(new Event('change', { bubbles: true }));
       await tick();
       const rows = $$('#table tbody tr');
-      check('status tile filters the table', rows.length > 0 && rows.every((tr) => /Approved/.test(tr.textContent)));
+      check('status filter narrows the table', rows.length > 0 && rows.every((tr) => /Approved/.test(tr.textContent)));
 
       // 10. Persistence
       frame.contentWindow.location.reload();

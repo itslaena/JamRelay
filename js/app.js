@@ -421,8 +421,8 @@
     const counts = R.countByStatus(entries);
     const attention = R.needsAttention(entries, now);
 
-    const tiles = [
-      { key: '', label: 'All entries', n: entries.length },
+    const statuses = [
+      { key: '', label: 'All statuses', n: entries.length },
       { key: 'submitted', label: 'New', n: counts.submitted },
       { key: 'resubmitted', label: 'Resubmitted', n: counts.resubmitted },
       { key: 'in_review', label: 'In review', n: counts.in_review },
@@ -456,20 +456,15 @@
         }
       </section>
 
-      <h2 class="filter-scope" id="filter-scope">Filter entries below <span class="muted small">(the list above always shows everything that needs you)</span></h2>
-      <div class="tiles" role="group" aria-labelledby="filter-scope">
-        ${tiles
-          .map(
-            (t) => `<button type="button" class="tile${dashFilter.status === t.key ? ' is-active' : ''}" data-status="${t.key}" aria-pressed="${dashFilter.status === t.key}">
-              <span class="tile-n">${t.n}</span><span class="tile-label">${esc(t.label)}</span>
-            </button>`
-          )
-          .join('')}
-      </div>
-
-      <section class="card">
+      <section class="card" aria-labelledby="filter-scope">
+        <h2 class="filter-scope" id="filter-scope">Filter entries below <span class="muted small">(the list above always shows everything that needs you)</span></h2>
         <div class="filters">
           <label>Search <input id="q" type="search" placeholder="Title or creator" value="${esc(dashFilter.q)}"></label>
+          <label>Status
+            <select id="status">${statuses.map(
+              (t) => `<option value="${t.key}"${dashFilter.status === t.key ? ' selected' : ''}>${esc(t.label)} (${t.n})</option>`
+            ).join('')}</select>
+          </label>
           <label>Category
             <select id="cat"><option value="">All</option>${R.CATEGORIES.map(
               (c) => `<option${dashFilter.category === c ? ' selected' : ''}>${esc(c)}</option>`
@@ -503,15 +498,8 @@
         : '<p class="muted">No entries match these filters.</p>';
     }
 
-    view.querySelector('.tiles').addEventListener('click', (e) => {
-      const t = e.target.closest('[data-status]');
-      if (!t) return;
-      dashFilter.status = t.dataset.status;
-      view.querySelectorAll('.tile').forEach((el) => {
-        const on = el.dataset.status === dashFilter.status;
-        el.classList.toggle('is-active', on);
-        el.setAttribute('aria-pressed', String(on));
-      });
+    document.getElementById('status').addEventListener('change', (e) => {
+      dashFilter.status = e.target.value;
       drawTable();
     });
     document.getElementById('q').addEventListener('input', (e) => {

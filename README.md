@@ -8,7 +8,7 @@ The jam ("Driftwood Jam 2026"), the creators and the entries are all fictional.
 
 | Creator: the live "Ready to submit?" checklist | Organizer: what needs attention, oldest first |
 |---|---|
-| ![Submit form with a checklist flagging a link that's missing https://](docs/creator-submit.png) | ![Organizer dashboard with the "Needs your attention" queue and status tiles](docs/organizer-dashboard.png) |
+| ![Submit form with a checklist flagging a link that's missing https://](docs/creator-submit.png) | ![Organizer dashboard with the "Needs your attention" queue and the entries table](docs/organizer-dashboard.png) |
 
 ## The idea
 
@@ -47,7 +47,7 @@ Then open <http://localhost:8000>. The app creates a SQLite database at `data/ja
 |---|---|
 | Creator | Submit a title, category, description and playable link. A live checklist shows what's missing before you submit. Your draft is saved as you type. |
 | Creator | Open **My entries** to see each entry's status and the organizer's feedback. If changes were requested, you can edit the entry and resubmit it. |
-| Organizer | Use the **Dashboard**. It shows a "Needs your attention" list (oldest first), status tiles that filter the table, and search plus a category filter. |
+| Organizer | Use the **Dashboard**. It shows a "Needs your attention" list (oldest first), and a table of all entries you can filter by search, status (with counts) and category. |
 | Organizer | Open an entry and move it to *In review*, *Changes requested*, *Approved* or *Declined*. Feedback is required when you request changes or decline. Every step is kept in the entry's history. |
 
 ## How it fits together
@@ -84,4 +84,4 @@ python3 -m unittest discover -s tests -v   # API + database: 23 tests
 With the server running, you can also open these pages:
 
 - <http://localhost:8000/tests/index.html>: the same rule tests, run in the browser
-- <http://localhost:8000/tests/smoke.html>: an end-to-end test that drives the real app from submission through review, requested changes and resubmission to approval (34 checks). **It resets the demo data.**
+- <http://localhost:8000/tests/smoke.html>: an end-to-end test that drives the real app from submission through review, requested changes and resubmission to approval (35 checks). **It resets the demo data.**

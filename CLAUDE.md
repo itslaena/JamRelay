@@ -4,7 +4,7 @@ Portfolio project for a **PM internship application**. A small creator-submissio
 
 ## What exists
 - **Creator:** a submit form (title, category, description, playable link, name) with a live "Ready to submit?" checklist, a draft that autosaves, and "My entries" showing status and feedback, with edit and resubmit when changes are requested.
-- **Organizer:** a dashboard with a "Needs your attention" queue (oldest first), status tiles that filter the table, search and a category filter. The review screen changes status; feedback is required for *Changes requested* and *Declined*. Each entry keeps an append-only history.
+- **Organizer:** a dashboard with a "Needs your attention" queue (oldest first), and an entries table filtered by search, a Status dropdown (with counts) and category. The review screen changes status; feedback is required for *Changes requested* and *Declined*. Each entry keeps an append-only history.
 - **Statuses:** submitted (shown as "New"), in_review, changes_requested, resubmitted, approved, declined. Allowed moves are in `ORGANIZER_NEXT`.
 
 ## Architecture (no installs; Python 3 standard library plus vanilla JS)
@@ -17,7 +17,7 @@ Portfolio project for a **PM internship application**. A small creator-submissio
 - Run: `python3 server.py`, then open http://localhost:8000
 - `python3 -m unittest discover -s tests`: 23 API and database tests
 - `./tests/run.sh`: 23 rule tests (macOS JavaScriptCore). Same tests in the browser at `/tests/index.html`
-- `/tests/smoke.html` with the server running: 34 end-to-end browser checks (it resets the demo data)
+- `/tests/smoke.html` with the server running: 35 end-to-end browser checks (it resets the demo data)
 - All of these passed as of 2026-10-20.
 
 ## Write-up (`WRITEUP.md`): the most important deliverable

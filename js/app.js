@@ -426,7 +426,7 @@
       { key: 'submitted', label: 'New', n: counts.submitted },
       { key: 'resubmitted', label: 'Resubmitted', n: counts.resubmitted },
       { key: 'in_review', label: 'In Review', n: counts.in_review },
-      { key: 'changes_requested', label: 'Waiting on creator', n: counts.changes_requested },
+      { key: 'changes_requested', label: 'Waiting on Creator', n: counts.changes_requested },
       { key: 'approved', label: 'Approved', n: counts.approved },
       { key: 'declined', label: 'Declined', n: counts.declined },
     ];

@@ -8,7 +8,7 @@
   const STATUS_LABELS = {
     submitted: 'New',
     in_review: 'In Review',
-    changes_requested: 'Changes requested',
+    changes_requested: 'Changes Requested',
     resubmitted: 'Resubmitted',
     approved: 'Approved',
     declined: 'Declined',

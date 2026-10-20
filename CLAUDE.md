@@ -4,7 +4,7 @@ Portfolio project for a **PM internship application**. A small creator-submissio
 
 ## What exists
 - **Creator:** a submit form (title, category, description, playable link, name) with a live "Ready to submit?" checklist, a draft that autosaves, and "My entries" showing status and feedback, with edit and resubmit when changes are requested.
-- **Organizer:** a dashboard with a "Needs your attention" queue (oldest first), and an entries table filtered by search, a Status dropdown (with counts) and category. The review screen changes status; feedback is required for *Changes requested* and *Declined*. Each entry keeps an append-only history.
+- **Organizer:** a dashboard with a "Needs your attention" queue (oldest first), and an entries table filtered by search, a Status dropdown (with counts) and category. The review screen changes status; feedback is required for *Changes Requested* and *Declined*. Each entry keeps an append-only history.
 - **Statuses:** submitted (shown as "New"), in_review, changes_requested, resubmitted, approved, declined. Allowed moves are in `ORGANIZER_NEXT`.
 
 ## Architecture (no installs; Python 3 standard library plus vanilla JS)

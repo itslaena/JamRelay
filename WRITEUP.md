@@ -23,7 +23,7 @@ A small tool for running game jam submissions. Creators submit an entry, the org
 | Measure | What it shows | Can the app measure it today? |
 |---|---|---|
 | **Time to first review**: from submission to the organizer's first status change | Whether entries get stuck without a decision | Yes. Both times are already in the entry history. |
-| **Share of entries needing corrections**: entries that get *Changes requested* at least once | Whether incomplete or unplayable entries still reach the organizer | Yes, from the history. |
+| **Share of entries needing corrections**: entries that get *Changes Requested* at least once | Whether incomplete or unplayable entries still reach the organizer | Yes, from the history. |
 | **Submission completion rate**: creators who submit, out of those who start the form | Whether the checks help people finish or just get in the way | Not yet. The app would also need to record when someone starts the form. |
 
 ## 2. Scope: what I built, and what I deliberately left out
@@ -128,7 +128,7 @@ The storage check is new in the end-to-end test (now 34 checks). Against the cod
 
 **One request, end to end (an organizer requests changes):**
 
-1. The organizer picks *Changes requested*, types feedback and saves. `rules.js` checks right away in the browser that feedback isn't empty, so the user gets an instant answer without waiting on the network.
+1. The organizer picks *Changes Requested*, types feedback and saves. `rules.js` checks right away in the browser that feedback isn't empty, so the user gets an instant answer without waiting on the network.
 2. `store.js` sends `POST /api/entries/DJ-105/review` with `{status, feedback}`.
 3. `server.py` loads the entry's current status and **checks the same rules again**. The browser can't be trusted: anyone can send a request directly. If the change isn't allowed, it returns `400` with a message, and the page shows that message under the form.
 4. If the change is allowed, a single database transaction updates the entry's status in `entries` **and** appends a row to `events` with who did what, when, and the feedback. Either both writes happen or neither does.

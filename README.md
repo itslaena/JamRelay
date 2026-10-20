@@ -20,7 +20,7 @@ This is a **hypothesis**, based on my assumptions about how small jams are run. 
 
 1. **Submit** (Creator): fill in the form, using a link like `itch.io/my-game`. The checklist flags the link and shows the right format. Fix it and submit.
 2. **Dashboard** (Organizer): your entry now appears in "Needs your attention", with the reason it's there.
-3. Open your entry and choose *Changes requested*. The app won't save the decision without feedback.
+3. Open your entry and choose *Changes Requested*. The app won't save the decision without feedback.
 4. **My entries** (Creator): read the feedback, edit the entry and resubmit. It goes back into the organizer's queue, marked as resubmitted.
 
 **Demo limitations:** there are no accounts. Anyone can open the organizer dashboard, and "My entries" only lists entries submitted from the current browser. Everything is fictional, and data stays in a local SQLite file.
@@ -48,7 +48,7 @@ Then open <http://localhost:8000>. The app creates a SQLite database at `data/ja
 | Creator | Submit a title, category, description and playable link. A live checklist shows what's missing before you submit. Your draft is saved as you type. |
 | Creator | Open **My entries** to see each entry's status and the organizer's feedback. If changes were requested, you can edit the entry and resubmit it. |
 | Organizer | Use the **Dashboard**. It shows a "Needs your attention" list (oldest first), and a table of all entries you can filter by search, status (with counts) and category. |
-| Organizer | Open an entry and move it to *In Review*, *Changes requested*, *Approved* or *Declined*. Feedback is required when you request changes or decline. Every step is kept in the entry's history. |
+| Organizer | Open an entry and move it to *In Review*, *Changes Requested*, *Approved* or *Declined*. Feedback is required when you request changes or decline. Every step is kept in the entry's history. |
 
 ## How it fits together
 
@@ -70,7 +70,7 @@ Browser (index.html, js/)  ── JSON over HTTP ──>  API (server.py)  ─�
 | `GET /api/entries` | Lists all entries, each with its history |
 | `GET /api/entries/:id` | Returns one entry |
 | `POST /api/entries` | Creates an entry: `201` on success, or `400 {errors: {field: message}}` |
-| `PUT /api/entries/:id` | Creator edit and resubmit. Only allowed while the entry is *Changes requested* (`409` otherwise) |
+| `PUT /api/entries/:id` | Creator edit and resubmit. Only allowed while the entry is *Changes Requested* (`409` otherwise) |
 | `POST /api/entries/:id/review` | Organizer decision `{status, feedback}`: `400` if the move isn't allowed or required feedback is missing |
 | `POST /api/reset` | Restores the demo data |
 

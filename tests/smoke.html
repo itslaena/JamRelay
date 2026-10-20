@@ -153,6 +153,28 @@
       check('the database holds the final state', fromApi.entry.status === 'approved' && fromApi.entry.history.length === 4);
       check('data survives a page reload', store().get(entry.id) && store().get(entry.id).status === 'approved');
 
+      // 11. Blocked browser storage: be honest about drafts, still confirm the submission
+      const proto = frame.contentWindow.Storage.prototype;
+      const realSetItem = proto.setItem;
+      proto.setItem = () => { throw new Error('storage blocked'); };
+      try {
+        await nav('#/submit');
+        fill('creator', 'No Storage Team');
+        check('blocked storage: draft status warns instead of saying saved', /lost if you leave/.test(text('#draft-status')), text('#draft-status'));
+        fill('title', 'Paper Lighthouse');
+        fill('category', 'Puzzle');
+        fill('description', 'Fold paper walls to guide a beam of light across each tiny island.');
+        fill('link', 'https://example.itch.io/paper-lighthouse');
+        $('#entry-form button[type=submit]').click();
+        await tick(80);
+        const saved = store().all().find((e) => e.title === 'Paper Lighthouse');
+        check('blocked storage: entry is still saved on the server', saved && saved.status === 'submitted');
+        check('blocked storage: creator sees a confirmation with the entry ID, not "Entry not found"',
+          saved && text('.flash').includes(saved.id) && !/not found/i.test(text('main')), text('main').slice(0, 120));
+      } finally {
+        proto.setItem = realSetItem;
+      }
+
       // clean up so the demo starts fresh afterwards
       await fetch('/api/reset', { method: 'POST' });
       localStorage.removeItem('jamrelay.mine.v1');

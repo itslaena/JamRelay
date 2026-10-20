@@ -59,11 +59,13 @@
     }
   }
 
+  // Returns false when the browser won't store it, so the UI can say so honestly.
   function write(key, value) {
     try {
       root.localStorage.setItem(key, JSON.stringify(value));
+      return true;
     } catch (e) {
-      /* storage unavailable — fine for a demo */
+      return false;
     }
   }
 
@@ -102,10 +104,11 @@
     return entries.filter((e) => ids.includes(e.id));
   }
 
+  // `tracked` is false when this browser couldn't remember the entry for "My entries".
   async function create(input) {
     const { entry } = await api('POST', '/api/entries', input);
-    write(MINE_KEY, mineIds().concat(entry.id));
-    return upsert(entry);
+    const tracked = write(MINE_KEY, mineIds().concat(entry.id));
+    return { entry: upsert(entry), tracked };
   }
 
   async function resubmit(id, input, note) {

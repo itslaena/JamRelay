@@ -54,6 +54,13 @@
 
   // ---------- creator: submit / edit form ----------
 
+  // Draft status line: confirm the save, or warn when the browser blocks storage.
+  function showSaved(ok, message) {
+    const el = document.getElementById('draft-status');
+    el.textContent = ok ? message : 'This browser isn’t letting the page save drafts, so your changes will be lost if you leave.';
+    el.classList.toggle('save-warning', !ok);
+  }
+
   function formHtml(values, mode) {
     const v = values || {};
     const opts = R.CATEGORIES.map(
@@ -267,14 +274,20 @@
 
     bindForm(document.getElementById('entry-form'), {
       onChange(data) {
-        S.saveDraft(data);
-        document.getElementById('draft-status').textContent = 'Draft saved.';
+        showSaved(S.saveDraft(data), 'Draft saved.');
       },
       async onSubmit(data) {
-        const entry = await S.create(data);
+        const { entry, tracked } = await S.create(data);
         S.clearDraft();
-        flash = `Submitted! “${entry.title}” is now waiting for review (${entry.id}).`;
-        go('#/mine/' + entry.id);
+        if (tracked) {
+          flash = `Submitted! “${entry.title}” is now waiting for review (${entry.id}).`;
+          go('#/mine/' + entry.id);
+        } else {
+          // The entry is saved on the server, but this browser can't list it under
+          // "My entries", so confirm here and give the creator the ID to keep.
+          flash = `Submitted! “${entry.title}” is now waiting for review. Your entry ID is ${entry.id}. This browser couldn’t save it to “My entries”, so keep the ID somewhere.`;
+          go('#/submit');
+        }
       },
     });
   }
@@ -382,8 +395,10 @@
       bindForm(form, {
         selfId: entry.id,
         onChange(data) {
-          S.saveDraft(Object.assign({}, data, { note: form.elements.note.value }), entry.id);
-          document.getElementById('draft-status').textContent = 'Changes saved. You can leave and come back.';
+          showSaved(
+            S.saveDraft(Object.assign({}, data, { note: form.elements.note.value }), entry.id),
+            'Changes saved. You can leave and come back.'
+          );
         },
         async onSubmit(data, note) {
           await S.resubmit(entry.id, data, note);
